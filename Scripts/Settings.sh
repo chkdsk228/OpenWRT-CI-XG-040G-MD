@@ -74,3 +74,29 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 		echo "qualcommax set up nowifi successfully!"
 	fi
 fi
+
+#airoha平台调整：2.5G网口作为LAN
+if [[ "${WRT_TARGET^^}" == *"AIROHA"* ]]; then
+	mkdir -p ./package/base-files/files/etc/uci-defaults/
+	cat > ./package/base-files/files/etc/uci-defaults/99-2.5g-lan << 'UCI_EOF'
+#!/bin/sh
+# XG-040G-MD/XG-040G-TF: 将2.5G网口作为LAN口
+# 默认2.5G为WAN口，此脚本将其切换到LAN桥接
+
+. /lib/functions.sh
+
+board=$(board_name)
+case "$board" in
+	bell,xg-040g-md|bell,xg-040g-tf)
+		# 将2.5G端口加入LAN桥，WAN改走1G口
+		uci set network.lan.device='eth0 eth1'
+		uci del network.wan.device 2>/dev/null
+		uci commit network
+		;;
+esac
+
+exit 0
+UCI_EOF
+	chmod +x ./package/base-files/files/etc/uci-defaults/99-2.5g-lan
+	echo "airoha 2.5G LAN setup done!"
+fi
