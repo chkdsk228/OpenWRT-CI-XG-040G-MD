@@ -75,24 +75,17 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 	fi
 fi
 
+
 #airoha平台调整：2.5G LAN + LAN4做WAN
 if [[ "${WRT_TARGET^^}" == *"AIROHA"* ]]; then
 	mkdir -p ./package/base-files/files/etc/uci-defaults/
 	cat > ./package/base-files/files/etc/uci-defaults/99-2.5g-lan << 'UCI_EOF'
 #!/bin/sh
-# XG-040G-MD/TF: 2.5G口做LAN，后板lan4口做WAN
-
-. /lib/functions.sh
-
-board=$(board_name)
-case "$board" in
-	bell,xg-040g-md|bell,xg-040g-tf)
-		uci set network.wan.device='lan4'
-		uci commit network
-		;;
-esac
-
-exit 0
+# 将后板LAN4口设为WAN（2.5G口默认已是LAN1）
+uci -q batch << EOB
+set network.wan.device='lan4'
+commit network
+EOB
 UCI_EOF
 	chmod +x ./package/base-files/files/etc/uci-defaults/99-2.5g-lan
 	echo "airoha port setup: 2.5G→LAN  lan4→WAN"
