@@ -108,6 +108,17 @@ jobs:
             sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
 
+
+      - name: Borrow AN7581 DTS
+        if: env.WRT_TARGET == 'airoha'
+        run: |
+          cd ./wrt/target/linux/airoha/dts/
+          echo "Borrowing XG-040G DTS from bingoguo93/immortalwrt 6.18..."
+          for DTS in an7581-xg-040g-md.dts an7581-xg-040g-tf.dts an7581-xg-040g-series.dtsi an7581-xg-140g-md.dts an7581-xg-140g-tf.dts; do
+            curl -sLO "https://raw.githubusercontent.com/bingoguo93/immortalwrt/6.18/target/linux/airoha/dts/$DTS"
+            echo "  Downloaded: $DTS"
+          done
+          echo "DTS borrowed successfully!"
       - name: Check Scripts
         run: |
           find ./ -maxdepth 3 -type f -iregex ".*\(txt\|sh\)$" -exec dos2unix {} \; -exec chmod +x {} \;
